@@ -26,12 +26,12 @@ export class UserRepository extends BaseRepository<User> {
   }
 
   public async updateUser(id,updateuserinputs){
-     await this.update(id,updateuserinputs);
     const user=await this.findOne({where:{id}});
     if (!user) {
       throw new NotFoundException('No user found.');
     }
+     await this.update(id,updateuserinputs);
+    
     return user;
   }
-
 }

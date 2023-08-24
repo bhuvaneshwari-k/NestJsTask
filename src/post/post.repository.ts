@@ -7,12 +7,16 @@ import { CreatePostInput } from './dto/create-post.input';
 import { Post } from './entities/post.entity';
 
 @Injectable()
-export class PostRepository extends BaseRepository<Post> {
+export class PostRepository  extends BaseRepository<Post> {
   constructor(private readonly dataSource: DataSource) {
     super(Post, dataSource.createEntityManager());
   }
 
   async createPost(createPostInput: CreatePostInput) {
+    let user=await this.findOne({where:{userId:createPostInput.userId}})
+    if (!user) {
+      throw new NotFoundException(`User with ID ${createPostInput.userId} not found`);
+    }
     let count=await this.count({where:{userId:createPostInput.userId}})
     createPostInput.postOrderNumber=count+1;
     console.log(createPostInput.postOrderNumber)
@@ -37,11 +41,12 @@ export class PostRepository extends BaseRepository<Post> {
   }
 
   public async updatePost(id,updatePostInput){
-    await this.update(id,updatePostInput);
     const post=await this.findOne({where:{id}});
     if(!post){
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
+    await this.update(id,updatePostInput);
+   
     return post;
   }
 
